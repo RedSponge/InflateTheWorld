@@ -10,26 +10,30 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.redsponge.inflateworld.InflateTheWorld;
+import com.redsponge.inflateworld.screen.WorldScreen;
 import com.redsponge.inflateworld.util.Assets;
 import com.redsponge.inflateworld.util.Reference;
 import com.redsponge.inflateworld.util.Utils;
-
-import java.sql.Ref;
 
 public class Pump extends InputAdapter {
 
     private World world;
     private Rectangle rectangle;
-    private boolean justClicked;
-    private boolean clicked;
     private FitViewport viewport;
     private long lastClickTime;
+    private int level;
 
     public Pump(World world, FitViewport viewport) {
         Gdx.input.setInputProcessor(this);
         this.world = world;
         this.rectangle = new Rectangle();
         this.viewport = viewport;
+        init();
+    }
+
+    public void init() {
+        level = 1;
     }
 
     public void update(float delta) {
@@ -41,14 +45,18 @@ public class Pump extends InputAdapter {
 
         Vector3 mousePos = viewport.getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 
-        if(clicked && !justClicked) {
+        if(Gdx.input.justTouched() && !InflateTheWorld.instance.worldScreen.isZooming()) {
             if(new Rectangle(mousePos.x, mousePos.y, 1, 1).overlaps(rectangle)) {
-                world.inflate(1);
+                world.inflate(level);
+                WorldScreen.tutorial = false;
+                InflateTheWorld.instance.worldScreen.moneyManager.updateMoney(1);
                 lastClickTime = TimeUtils.nanoTime();
             }
         }
+    }
 
-        justClicked = clicked;
+    public void upgradeLevel() {
+        level++;
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
@@ -62,7 +70,6 @@ public class Pump extends InputAdapter {
         if(secondsSince < Reference.PUMP_ANIMATION_DURATION) {
             if(secondsSince < Reference.PUMP_ANIMATION_DURATION / 2) {
                 currentHandleYOffset = Reference.PUMP_ANIMATION_HANDLE_MAX_HEIGHT * (secondsSince / (Reference.PUMP_ANIMATION_DURATION / 2));
-                System.out.println(currentHandleYOffset);
             } else {
                 currentHandleYOffset = Reference.PUMP_ANIMATION_HANDLE_MAX_HEIGHT - Reference.PUMP_ANIMATION_HANDLE_MAX_HEIGHT * ((secondsSince - Reference.PUMP_ANIMATION_DURATION / 2) / (Reference.PUMP_ANIMATION_DURATION / 2));
             }
@@ -72,17 +79,7 @@ public class Pump extends InputAdapter {
         batch.end();
     }
 
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if(button != Buttons.LEFT || pointer > 0) return false;
-        clicked = true;
-        return true;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        if(button != Buttons.LEFT || pointer > 0) return false;
-        clicked = false;
-        return true;
+    public int getLevel() {
+        return level;
     }
 }

@@ -6,32 +6,47 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.redsponge.inflateworld.InflateTheWorld;
 import com.redsponge.inflateworld.util.Assets;
 import com.redsponge.inflateworld.util.Reference;
+import com.redsponge.inflateworld.util.Utils;
 
 public class World {
 
     private float radius;
     private float displayedRadius;
     private FitViewport viewport;
+    private int difficulty;
+    private long startTime;
+    private Array<Integer> changedAt;
 
     public World(FitViewport viewport) {
         this.viewport = viewport;
     }
 
     public void init() {
-        radius = 50;
+        radius = 51;
         displayedRadius = radius;
+        difficulty = 1;
+        startTime = TimeUtils.nanoTime();
+        changedAt = new Array<>();
+        changedAt.add(0);
     }
 
     public void update(float delta) {
-        radius -= 0.1;
+        if(!InflateTheWorld.instance.worldScreen.isZooming())
+            radius -= 0.025 * difficulty;
         if(radius < 5) {
             InflateTheWorld.instance.worldScreen.endGame();
         }
         displayedRadius += (radius - displayedRadius) * delta;
+        if((int) Utils.secondsSince(startTime) % 20 == 0 && !changedAt.contains((int)Utils.secondsSince(startTime), false)) {
+            difficulty++;
+            changedAt.add((int) Utils.secondsSince(startTime));
+        }
     }
 
 
@@ -55,5 +70,13 @@ public class World {
 
     public float getRadius() {
         return radius;
+    }
+
+    public int getDifficulty() {
+        return difficulty;
+    }
+
+    public void setRadius(float radius) {
+        this.radius = radius;
     }
 }

@@ -1,21 +1,19 @@
 package com.redsponge.inflateworld.ui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.redsponge.inflateworld.InflateTheWorld;
 import com.redsponge.inflateworld.util.Assets;
 import com.redsponge.inflateworld.util.InputUtils;
-import com.redsponge.inflateworld.util.Utils;
 
 public abstract class Button extends Rectangle {
 
     private boolean selected;
-    private String label;
+    protected String label;
     private Viewport viewport;
     protected final Runnable task;
 
@@ -33,8 +31,13 @@ public abstract class Button extends Rectangle {
         this.task = task;
     }
 
+    public Rectangle fixed() {
+        return new Rectangle(x + viewport.getLeftGutterWidth(), y, width, height);
+    }
+
     public void update(float delta) {
         if(this.overlaps(InputUtils.getMousePositionAsRect(viewport))) {
+//            System.out.println(this + " " + InputUtils.getMousePositionAsRect(viewport));
             selected = true;
         } else {
             selected = false;
@@ -42,7 +45,7 @@ public abstract class Button extends Rectangle {
 
         if(selected) {
             if(Gdx.input.justTouched()) {
-                System.out.println("CLICK!");
+                trigger();
             }
         }
     }
@@ -50,13 +53,29 @@ public abstract class Button extends Rectangle {
     public abstract void trigger();
 
     public void render(ShapeRenderer shapeRenderer, SpriteBatch batch) {
-        shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(Color.BLUE);
-        if(selected) shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(x, y, width, height);
-        shapeRenderer.end();
+
+//        shapeRenderer.begin(ShapeType.Filled);
+//        shapeRenderer.setColor(Color.BLUE);
+//        shapeRenderer.rect(x, y, width, height);
+//        shapeRenderer.end();
+
+
+
+        Assets.instance.nonTextures.font.getData().setScale(0.25f);
+        GlyphLayout layout = new GlyphLayout(Assets.instance.nonTextures.font, label);
+
+        NinePatch toDraw = Assets.instance.textures.buttonRegular;
+        if(selected) toDraw = Assets.instance.textures.buttonSelected;
+
         batch.begin();
-        Assets.instance.nonTextures.font.draw(batch, label, x, y+width/2);
+
+        toDraw.draw(batch, x, y, width, height);
+
+        Assets.instance.nonTextures.font.draw(batch, label, x + width / 2 - layout.width / 2, y + height / 2 + layout.height / 2);
         batch.end();
+    }
+
+    public static Button centeredAroundX(float y, float width, float height, String label, Viewport viewport, Runnable task) {
+        return new ButtonBase(viewport.getWorldWidth() / 2 - width / 2, y, width, height, label, viewport, task);
     }
 }
