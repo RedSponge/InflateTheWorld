@@ -3,25 +3,29 @@ package com.redsponge.inflateworld.entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.redsponge.inflateworld.util.Assets;
 import com.redsponge.inflateworld.util.Reference;
+import com.redsponge.inflateworld.util.Utils;
 
-public class Inflator extends InputAdapter {
+import java.sql.Ref;
+
+public class Pump extends InputAdapter {
 
     private World world;
     private Rectangle rectangle;
     private boolean justClicked;
     private boolean clicked;
     private FitViewport viewport;
+    private long lastClickTime;
 
-    public Inflator(World world, FitViewport viewport) {
+    public Pump(World world, FitViewport viewport) {
         Gdx.input.setInputProcessor(this);
         this.world = world;
         this.rectangle = new Rectangle();
@@ -38,12 +42,9 @@ public class Inflator extends InputAdapter {
         Vector3 mousePos = viewport.getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 
         if(clicked && !justClicked) {
-            System.out.println("HI");
-            System.out.println(mousePos);
-            System.out.println(rectangle);
             if(new Rectangle(mousePos.x, mousePos.y, 1, 1).overlaps(rectangle)) {
-                System.out.println("WORK");
                 world.inflate(1);
+                lastClickTime = TimeUtils.nanoTime();
             }
         }
 
@@ -51,10 +52,24 @@ public class Inflator extends InputAdapter {
     }
 
     public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
-        shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-        shapeRenderer.end();
+//        shapeRenderer.begin(ShapeType.Filled);
+//        shapeRenderer.setColor(Color.RED);
+//        shapeRenderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+//        shapeRenderer.end();
+        batch.begin();
+        float currentHandleYOffset = 0;
+        float secondsSince = Utils.secondsSince(lastClickTime);
+        if(secondsSince < Reference.PUMP_ANIMATION_DURATION) {
+            if(secondsSince < Reference.PUMP_ANIMATION_DURATION / 2) {
+                currentHandleYOffset = Reference.PUMP_ANIMATION_HANDLE_MAX_HEIGHT * (secondsSince / (Reference.PUMP_ANIMATION_DURATION / 2));
+                System.out.println(currentHandleYOffset);
+            } else {
+                currentHandleYOffset = Reference.PUMP_ANIMATION_HANDLE_MAX_HEIGHT - Reference.PUMP_ANIMATION_HANDLE_MAX_HEIGHT * ((secondsSince - Reference.PUMP_ANIMATION_DURATION / 2) / (Reference.PUMP_ANIMATION_DURATION / 2));
+            }
+        }
+        batch.draw(Assets.instance.textures.pumpHandle, rectangle.x, rectangle.y+currentHandleYOffset, rectangle.width, rectangle.height);
+        batch.draw(Assets.instance.textures.pumpBase, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        batch.end();
     }
 
     @Override
