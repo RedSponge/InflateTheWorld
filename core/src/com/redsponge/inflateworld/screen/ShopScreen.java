@@ -47,7 +47,7 @@ public class ShopScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(1, 1, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         update(delta);
@@ -55,11 +55,11 @@ public class ShopScreen extends ScreenAdapter {
         viewport.apply();
         batch.setProjectionMatrix(viewport.getCamera().combined);
         shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
-
-        shapeRenderer.begin(ShapeType.Filled);
-        shapeRenderer.setColor(Color.YELLOW);
-        shapeRenderer.rect(0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        shapeRenderer.end();
+//
+//        shapeRenderer.begin(ShapeType.Filled);
+//        shapeRenderer.setColor(Color.YELLOW);
+//        shapeRenderer.rect(0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+//        shapeRenderer.end();
 
 
         batch.begin();

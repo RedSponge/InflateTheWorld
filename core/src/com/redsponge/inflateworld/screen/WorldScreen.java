@@ -146,7 +146,7 @@ public class WorldScreen extends ScreenAdapter {
             Assets.instance.nonTextures.font.draw(batch, "Money: " + moneyManager.getMoney(), 10, scoreViewport.getWorldHeight() - 50);
 
             if(tutorial) {
-                Assets.instance.nonTextures.fontSmall.draw(batch, "<- Click the pump to inflate the world!", viewport.getWorldWidth() / 2 + 10, 190);
+                Assets.instance.nonTextures.fontSmall.draw(batch, "<- Click the pump to\n    inflate the world!", viewport.getWorldWidth() / 2 + 10, 190);
             }
             if (!pressedEsc) {
                 Assets.instance.nonTextures.fontSmall.draw(batch, "Psst.. press ESC for pause menu and shop", scoreViewport.getWorldWidth() - 200, 10);
