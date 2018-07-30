@@ -77,6 +77,7 @@ public class WorldScreen extends ScreenAdapter {
 
     public void init() {
         world.init();
+        pump.init();
 
         moneyManager.setMoney(0);
 
@@ -95,6 +96,9 @@ public class WorldScreen extends ScreenAdapter {
         gameOverButtons.add(Button.centeredAroundX(viewport.getWorldHeight() / 8, 100, 25, "Back to menu", scoreViewport, () -> InflateTheWorld.instance.setScreen(InflateTheWorld.instance.menuScreen)));
         sky = new Color(Reference.SKY_COLOR);
         desiredSkyColor = new Color(sky);
+
+        camera.zoom = desiredZoom = 1.0f;
+        zooming = false;
         pauseScreen = false;
         running = true;
     }
